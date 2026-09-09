@@ -144,14 +144,14 @@
             <h1 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">
               換錢速算手帳
             </h1>
-            <!-- 版本號小印章 (可點擊) -->
+            <!-- 版本號小印章 (升級至 v1.1，可點擊查看資訊) -->
             <button 
               type="button" 
               onclick="showVersionInfo()" 
               class="text-[9px] bg-amber-200 hover:bg-amber-300 text-amber-900 px-1.5 py-0.2 rounded font-black border border-amber-300 shadow-2xs active:scale-95 transition-transform"
               title="點擊查看版本資訊"
             >
-              v1.0
+              v1.1
             </button>
           </div>
           <!-- 動態手帳日期郵戳標籤 -->
@@ -163,6 +163,18 @@
       </div>
 
       <div class="flex items-center gap-1">
+        <!-- 說明按鈕 -->
+        <button 
+          type="button" 
+          id="helpToggleBtn" 
+          onclick="openHelpModal()" 
+          class="p-1 px-1.5 bg-white border border-slate-300 rounded-lg text-[10px] font-black text-slate-700 hover:bg-slate-50 flex items-center gap-0.5 shadow-xs"
+          title="使用說明、新手解惑與資料來源"
+        >
+          <span>❓ 說明</span>
+        </button>
+
+        <!-- 音效按鈕 -->
         <button 
           type="button" 
           id="soundToggleBtn" 
@@ -173,6 +185,7 @@
           <span id="soundIcon">🔔</span>
         </button>
 
+        <!-- 強光模式按鈕 -->
         <button 
           type="button" 
           id="sunlightToggleBtn" 
@@ -185,7 +198,7 @@
       </div>
     </div>
 
-    <!-- 第 1 步：國家橫向卷軸郵票條 (取代長條方塊，僅佔 52px 高度) -->
+    <!-- 第 1 步：國家橫向卷軸郵票條 (僅佔 52px 高度) -->
     <div class="doodle-box p-1.5 relative bg-white">
       <div class="flex items-center justify-between px-1.5 mb-1">
         <span class="text-[10px] font-black text-slate-600 flex items-center gap-1">
@@ -202,13 +215,13 @@
       </div>
     </div>
 
-    <!-- 第 2 步：現場看板輸入（雙欄並排！高度省下 50%） -->
+    <!-- 第 2 步：現場看板輸入（雙欄並排） -->
     <div class="doodle-box p-2.5 relative bg-white">
       <!-- 看板小指引 + 快捷操作 -->
       <div class="flex items-center justify-between mb-1.5 text-[10px]">
         <div class="flex items-center gap-1 font-black text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
           <span>👀</span>
-          <span>盯緊看板 <span class="bg-amber-200 text-red-700 px-1 rounded font-black">WE BUY</span></span>
+          <span>盯緊看板 <span class="bg-amber-200 text-red-700 px-1 rounded font-black">WE BUY</span>（黑色數字）</span>
         </div>
         <div class="flex items-center gap-1">
           <button 
@@ -275,7 +288,7 @@
         </div>
       </div>
 
-      <!-- 面額快速切換膠囊 (極簡單行) -->
+      <!-- 面額快速切換膠囊 -->
       <div class="mt-2 pt-1.5 border-t border-slate-200/80 flex items-center justify-between text-[10px]">
         <div class="flex items-center gap-1">
           <span class="font-bold text-slate-600">美金面額：</span>
@@ -309,7 +322,7 @@
       </div>
     </div>
 
-    <!-- 第 3 步：命運大揭曉（第一屏直達！無須往下滑） -->
+    <!-- 第 3 步：命運大揭曉（第一屏直達） -->
     <div id="resultCard" class="doodle-box p-3 relative bg-white text-center">
       <!-- 醒目勝負大印章 -->
       <div class="flex items-center justify-center gap-1.5 mb-1">
@@ -378,7 +391,7 @@
       </div>
     </div>
 
-    <!-- 手帳摺疊暗袋：美金成本微調、預算、刷卡評比與避坑指南（點擊才展開，不佔首屏空間） -->
+    <!-- 手帳摺疊暗袋：美金成本微調、預算、刷卡評比與避坑指南 -->
     <div class="doodle-box p-2.5 bg-white">
       <button 
         type="button" 
@@ -522,18 +535,115 @@
       </div>
     </div>
 
-    <!-- 底部手帳專屬角落戳章 + 版本號 -->
+    <!-- 底部手帳專屬角落戳章 + 版本號 (升級為 Ver 1.1) -->
     <footer class="text-center text-[9px] text-slate-400 font-bold pb-2 flex flex-col items-center gap-1">
       <div class="flex items-center gap-1.5 text-[10px]">
         <span class="bg-white border border-slate-300 rounded px-1.5 py-0.5 text-slate-600 font-black shadow-2xs">
           📅 <span id="footerTodayDate">2026.09.09</span>
         </span>
         <span class="bg-amber-100 text-amber-900 border border-amber-300 rounded px-1.5 py-0.5 font-black shadow-2xs">
-          Ver 1.0
+          Ver 1.1
         </span>
       </div>
       <span>純前端單純計算 · 離線無網亦可秒開 · 祝旅途愉快 ✈️</span>
     </footer>
+
+    <!-- 使用說明彈窗 (Help Modal) -->
+    <div id="helpModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+      <div class="doodle-box bg-white w-full max-w-md max-h-[85vh] overflow-y-auto p-3.5 sm:p-4 relative space-y-3">
+        <!-- 彈窗頂部 -->
+        <div class="flex items-center justify-between border-b border-dashed border-slate-200 pb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-lg">📖</span>
+            <h3 class="text-sm sm:text-base font-black text-slate-800">換錢隨身手帳使用指南 (v1.1)</h3>
+          </div>
+          <button 
+            type="button" 
+            onclick="closeHelpModal()" 
+            class="doodle-btn w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black flex items-center justify-center"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- 說明內容 0：核心亮點 — 為什麼需要這款小工具？（解決什麼痛點？） -->
+        <div class="bg-rose-50/90 p-2.5 rounded-xl border border-rose-300 text-[11px] leading-relaxed text-slate-800 space-y-1.5">
+          <div class="font-black text-rose-950 flex items-center gap-1 text-xs">
+            <span>💡</span><span>為什麼需要這本手帳？（一般匯率 App 做不到的事）</span>
+          </div>
+          <p class="text-[10px] text-rose-900/90 leading-normal">
+            出國換錢常陷入兩難：<strong>「到底該帶美金百元大鈔去換，還是直接帶千元台幣？」</strong> 市面上的主流 App 往往無法解決這個最後一哩路決策：
+          </p>
+          <ul class="list-disc list-inside space-y-1 text-[10px] text-slate-700 pl-0.5">
+            <li>
+              <strong>打破傳統 App 盲點</strong>：一般 App 只能查 A 幣換 B 幣的官方中價，<strong>無法計算「先在台灣買美金 ➔ 再帶到當地換當地幣」的三角套算</strong>，更算不出你在台銀買美金被賺走的現鈔點差。
+            </li>
+            <li>
+              <strong>終結櫃檯前的數學恐慌</strong>：拖著行李排隊、後面有人逼近、看板一堆數字……本手帳只要照著抄 2 個黑色數字，<strong>一秒蓋印章告訴你掏哪種鈔票</strong>，免除心算焦慮！
+            </li>
+            <li>
+              <strong>超有感美食換算</strong>：不只比出勝負，還換算成「相當於免費多喝 5 杯泰奶 🧋 或多吃 1 碗牛肉河粉 🍜」，省多少一眼就懂！
+            </li>
+            <li>
+              <strong>100% 離線秒開</strong>：剛下飛機還沒開通網路、或在換錢所地下室沒收訊，依然能秒開即算。
+            </li>
+          </ul>
+        </div>
+
+        <!-- 說明內容 1：極速 3 步驟 -->
+        <div class="bg-amber-50/80 p-2.5 rounded-xl border border-amber-300 text-[11px] leading-relaxed text-slate-800 space-y-1">
+          <div class="font-black text-amber-950 flex items-center gap-1">
+            <span>⚡</span><span>站在換錢所前怎麼用？（極速三步驟）</span>
+          </div>
+          <ol class="list-decimal list-inside space-y-0.5 text-[10px] text-slate-700 pl-0.5">
+            <li><strong>點選國家</strong>：上方滑動郵票條點選目的地（如泰國、日本、韓國）。</li>
+            <li><strong>抄黑色數字</strong>：只看電視牆看板的 <span class="bg-amber-200 text-red-700 px-1 rounded font-black">WE BUY</span>（買入），將 USD 與 TWD 數字填入。</li>
+            <li><strong>看大印章結論</strong>：下方印章立刻告訴你【掏美金】還是【掏台幣】，連計算機都不用開！</li>
+          </ol>
+        </div>
+
+        <!-- 說明內容 2：核心公式大白話 -->
+        <div class="bg-blue-50/70 p-2.5 rounded-xl border border-blue-300 text-[11px] leading-relaxed text-slate-800 space-y-1">
+          <div class="font-black text-blue-950 flex items-center gap-1">
+            <span>🧮</span><span>計算核心原理（什麼是隱含匯率？）</span>
+          </div>
+          <p class="text-[10px] text-slate-700 leading-normal">
+            換錢所換算的核心公式為：<br>
+            <code class="bg-white px-1 py-0.5 rounded border border-blue-200 font-black text-blue-900">看板美金買入價 ÷ 看板台幣買入價 ＝ 當地隱含美金匯率</code><br>
+            • <strong>大於</strong> 你的美金成本（如 32.2）：用美金換更賺！<br>
+            • <strong>小於</strong> 你的美金成本：直接掏千元台幣更划算！
+          </p>
+        </div>
+
+        <!-- 說明內容 3：資料來源說明 -->
+        <div class="bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-300 text-[11px] leading-relaxed text-slate-800 space-y-1">
+          <div class="font-black text-emerald-950 flex items-center gap-1">
+            <span>🌐</span><span>資料來源與抓取機制</span>
+          </div>
+          <ul class="list-disc list-inside space-y-0.5 text-[10px] text-slate-700 pl-0.5">
+            <li><strong>🏦 臺灣銀行即時牌告</strong>：連網時自動透過公開代理抓取台銀官方 CSV 牌告，取得「美金現金賣出價（Cash Selling）」。</li>
+            <li><strong>🌍 各國行情預設值</strong>：參考各地熱門換錢所（如曼谷 SuperRich、明洞大使館等）現鈔行情常模；連網時輔以公開即時外匯中間價動態校正。</li>
+            <li><strong>📴 100% 離線可用</strong>：剛下飛機無網路時，會自動切換為內建離線備案，絕不卡關。</li>
+          </ul>
+        </div>
+
+        <!-- 說明內容 4：小鈔折讓叮嚀 -->
+        <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 text-[10px] text-slate-600 leading-tight">
+          💡 <strong>溫馨提醒</strong>：在東南亞換錢，美金 100 元新鈔匯率最優；折角、污損或小鈔（10~20元）常有 1%~3% 的扣趴，請善用「美金面額」按鈕切換試算！
+        </div>
+
+        <!-- 彈窗底部關閉鈕 -->
+        <div class="pt-1 text-center">
+          <button 
+            type="button" 
+            onclick="closeHelpModal()" 
+            class="doodle-btn w-full py-1.5 bg-amber-300 hover:bg-amber-400 text-slate-900 font-black text-xs rounded-xl"
+          >
+            👌 懂了！回手帳速算
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- 浮動提示 Toast -->
     <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/95 text-amber-200 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg pointer-events-none transition-all duration-200 opacity-0 translate-y-2 z-50 flex items-center gap-1 border border-amber-400">
@@ -605,6 +715,17 @@
       showToast(isSun ? '☀️ 已開啟戶外強光高對比模式' : '🌤️ 恢復手帳原色模式');
     }
 
+    // 說明彈窗控制
+    function openHelpModal() {
+      playSound('pop');
+      document.getElementById('helpModal').classList.remove('hidden');
+    }
+
+    function closeHelpModal() {
+      playSound('pop');
+      document.getElementById('helpModal').classList.add('hidden');
+    }
+
     // 摺疊抽屜切換
     function toggleDrawer() {
       playSound('pop');
@@ -616,7 +737,7 @@
       if (isHidden) {
         drawer.classList.remove('hidden');
         chevron.textContent = '➖';
-        arrow.textContent = '⚙️▴';
+        arrow.textContent = '⚙️▾';
       } else {
         drawer.classList.add('hidden');
         chevron.textContent = '➕';
@@ -1094,7 +1215,7 @@
       const todayStr = getFormattedDate();
 
       const report = `【✈️ 換錢所即時算好囉！】\n` +
-                     `📅 記錄日期：${todayStr} (v1.0)\n` +
+                     `📅 記錄日期：${todayStr} (v1.1)\n` +
                      `📍 地點：${currentCountry.name} (${currentCountry.currency})\n` +
                      `• 看板美金 We Buy：${usdRate} ${denomNote}\n` +
                      `• 看板台幣 We Buy：${twdRate}\n` +
@@ -1143,7 +1264,7 @@
 
     function showVersionInfo() {
       playSound('pop');
-      showToast('📖 手帳版本 v1.0：一屏秒算 · 離線無網可用！');
+      showToast('📖 手帳版本 v1.1：新增新手說明指南 · 一屏秒算離線可用！');
     }
 
     function showToast(msg) {
@@ -1157,6 +1278,14 @@
         toast.classList.add('opacity-0', 'translate-y-2');
       }, 2000);
     }
+
+    // 點擊彈窗半透明背景即可關閉
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('helpModal');
+      if (e.target === modal) {
+        closeHelpModal();
+      }
+    });
 
     window.addEventListener('DOMContentLoaded', () => {
       initDates();
