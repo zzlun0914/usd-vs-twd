@@ -144,14 +144,15 @@
             <h1 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">
               換錢速算手帳
             </h1>
-            <!-- 版本號小印章 (升級至 v1.1，可點擊查看資訊) -->
+            <!-- 版本號小印章 (更新為 v1.3) -->
             <button 
               type="button" 
               onclick="showVersionInfo()" 
-              class="text-[9px] bg-amber-200 hover:bg-amber-300 text-amber-900 px-1.5 py-0.2 rounded font-black border border-amber-300 shadow-2xs active:scale-95 transition-transform"
-              title="點擊查看版本資訊"
+              class="text-[9px] bg-amber-200 hover:bg-amber-300 text-amber-900 px-1.5 py-0.2 rounded font-black border border-amber-300 shadow-2xs active:scale-95 transition-transform flex items-center gap-0.5"
+              title="點擊查看 v1.3 與歷史更新紀錄"
             >
-              v1.1
+              <span>v1.3</span>
+              <span class="text-[8px] text-amber-700">📜</span>
             </button>
           </div>
           <!-- 動態手帳日期郵戳標籤 -->
@@ -169,7 +170,7 @@
           id="helpToggleBtn" 
           onclick="openHelpModal()" 
           class="p-1 px-1.5 bg-white border border-slate-300 rounded-lg text-[10px] font-black text-slate-700 hover:bg-slate-50 flex items-center gap-0.5 shadow-xs"
-          title="使用說明、新手解惑與資料來源"
+          title="使用說明、新手解惑與版本紀錄"
         >
           <span>❓ 說明</span>
         </button>
@@ -221,7 +222,7 @@
       <div class="flex items-center justify-between mb-1.5 text-[10px]">
         <div class="flex items-center gap-1 font-black text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
           <span>👀</span>
-          <span>盯緊看板 <span class="bg-amber-200 text-red-700 px-1 rounded font-black">WE BUY</span>（黑色數字）</span>
+          <span>認明看板 <span class="bg-amber-200 text-red-700 px-1 rounded font-black">WE BUY</span>（買入欄位，勿看 SELL）</span>
         </div>
         <div class="flex items-center gap-1">
           <button 
@@ -288,33 +289,29 @@
         </div>
       </div>
 
-      <!-- 面額快速切換膠囊 -->
+      <!-- 智慧防呆提示條 (支援 越南/印尼補零 & 新幣/馬幣百元計價) -->
+      <div id="smartNoticeBanner" class="hidden mt-1.5 px-2 py-1 bg-amber-50 border border-amber-200 rounded-lg text-[9px] text-amber-900 font-bold flex items-center justify-between">
+        <span class="flex items-center gap-1" id="smartNoticeText">
+          <span>💡</span>
+          <span>智慧提示</span>
+        </span>
+        <span id="autoScaledBadge" class="hidden text-[8px] bg-emerald-200 text-emerald-950 px-1.5 py-0.2 rounded font-black shrink-0">
+          已智慧校正
+        </span>
+      </div>
+
+      <!-- 直覺抄表指引 + 美金成本膠囊 -->
       <div class="mt-2 pt-1.5 border-t border-slate-200/80 flex items-center justify-between text-[10px]">
-        <div class="flex items-center gap-1">
-          <span class="font-bold text-slate-600">美金面額：</span>
-          <button 
-            type="button" 
-            id="denomLargeBtn" 
-            onclick="setBillDenomination('large')"
-            class="doodle-btn px-2 py-0.5 text-[9px] font-black bg-emerald-100 text-emerald-950 border border-slate-800"
-          >
-            100 大鈔
-          </button>
-          <button 
-            type="button" 
-            id="denomSmallBtn" 
-            onclick="setBillDenomination('small')"
-            class="doodle-btn px-2 py-0.5 text-[9px] font-bold bg-white text-slate-600 border border-slate-300"
-          >
-            10~20 零鈔 (-2%)
-          </button>
+        <div class="flex items-center gap-1 text-[9px] text-slate-600 font-bold">
+          <span>🧾</span>
+          <span>手上拿什麼面額，眼睛就抄該行（大鈔抄 100、小鈔抄 20）</span>
         </div>
 
         <!-- 觸發設定抽屜的小標籤 -->
         <button 
           type="button" 
           onclick="toggleDrawer()" 
-          class="text-[9px] font-black text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-300"
+          class="text-[9px] font-black text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-300 active:scale-95 transition-transform shrink-0"
         >
           <span>美金成本: <strong id="costSummaryBadge">31.8</strong></span>
           <span id="drawerArrow">⚙️▾</span>
@@ -334,9 +331,9 @@
       <!-- 數學苦手必備：一眼秒殺魔法便籤 -->
       <div class="bg-amber-50/90 border border-dashed border-amber-400 rounded-xl px-2 py-1.5 my-1.5 text-left flex items-center gap-1.5">
         <span class="text-base shrink-0">🎯</span>
-        <div class="text-[10px] leading-tight text-slate-800">
+        <div class="text-[10px] leading-tight text-slate-800" id="breakEvenContainer">
           <span class="font-black text-amber-950">現場一眼定勝負：</span>
-          <span class="text-slate-700">
+          <span class="text-slate-700" id="breakEvenText">
             台幣買入價高於 <strong class="text-blue-700 font-black text-xs" id="breakEvenTargetRate">1.15</strong> ➜ <span class="bg-blue-100 text-blue-900 px-1 rounded font-bold">掏台幣</span>，否則 ➜ <span class="bg-emerald-100 text-emerald-900 px-1 rounded font-bold">掏美金</span>！
           </span>
         </div>
@@ -347,7 +344,7 @@
         <div class="text-2xl" id="rewardIcon">🧋</div>
         <div class="leading-tight">
           <div class="text-[11px] font-black text-amber-950" id="rewardText">
-            多拿的錢，相當於免費多喝 5 杯泰奶！
+            多拿的錢，相當於免費多喝 5 杯手標泰奶！
           </div>
           <div class="text-[9px] text-amber-800 mt-0.5" id="diffMoneyText">
             多拿約 280 泰銖（現賺約 NT$ 250 元）
@@ -357,7 +354,7 @@
 
       <!-- 雙欄換算數據對比 -->
       <div class="grid grid-cols-2 gap-1.5 text-left mt-1.5">
-        <div id="boxUsd" class="p-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-50/70">
+        <div id="boxUsd" class="p-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-50/70 transition-all">
           <div class="flex items-center justify-between text-[9px] font-black text-emerald-900">
             <span>💵 掏美金換得</span>
             <span id="usdWinTag" class="text-[8px] bg-emerald-600 text-white px-1 rounded">最划算</span>
@@ -366,7 +363,7 @@
           <div class="text-[8px] text-emerald-700" id="usdSubDetail">拿約 $314 美元</div>
         </div>
 
-        <div id="boxTwd" class="p-1.5 rounded-lg border border-slate-300 bg-slate-50">
+        <div id="boxTwd" class="p-1.5 rounded-lg border border-slate-300 bg-slate-50 transition-all">
           <div class="flex items-center justify-between text-[9px] font-black text-slate-700">
             <span>🇹🇼 掏台幣換得</span>
             <span id="twdWinTag" class="hidden text-[8px] bg-blue-600 text-white px-1 rounded">最划算</span>
@@ -401,7 +398,7 @@
       >
         <span class="flex items-center gap-1">
           <span>🎒 進階手帳暗袋</span>
-          <span class="text-[9px] text-slate-400 font-normal">（美金成本微調 / 預算 / 避坑小抄）</span>
+          <span class="text-[9px] text-slate-400 font-normal">（美金成本微調 / 預算 / 刷卡建議）</span>
         </span>
         <span id="accordionChevron" class="text-sm transition-transform duration-200">➕</span>
       </button>
@@ -499,24 +496,22 @@
           </div>
         </div>
 
-        <!-- 子項目 3：海外 3% 信用卡比一比 -->
-        <div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-2 text-left flex items-center justify-between text-[10px]">
-          <div class="flex items-center gap-1.5 text-indigo-950">
-            <span>💳</span>
-            <div>
-              <span class="font-black">海外 3% 信用卡比對：</span>
-              <span class="text-[9px] text-indigo-700 block" id="cardCompareText">
-                扣除 1.5% 交易手續費後，淨賺約 1.5%（約 NT$ 150）
-              </span>
-            </div>
+        <!-- 子項目 3：海外 3% 信用卡現場小建議 -->
+        <div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-2 text-left flex items-start gap-1.5 text-[10px]">
+          <span class="text-base shrink-0 mt-0.5">💳</span>
+          <div class="leading-normal">
+            <span class="font-black text-indigo-950 block">海外 3% 信用卡現場決策小輔助：</span>
+            <span class="text-[9px] text-indigo-800 block mt-0.5" id="cardCompareText">
+              若兩種現金差距極小，不想帶大筆現金或排隊，直接刷海外 3% 信用卡（扣除 1.5% 手續費後淨賺約 1.5%）更輕鬆！
+            </span>
           </div>
         </div>
 
         <!-- 子項目 4：防踩坑便籤 -->
         <div class="grid grid-cols-2 gap-1.5 text-[9px] text-slate-700 font-bold">
           <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
-            <span class="block text-slate-900 mb-0.5 font-black">💵 美金認明 100</span>
-            <p class="font-medium text-slate-500 text-[8px] leading-tight">小鈔如 10、20 面額匯率常被砍 1~3%。</p>
+            <span class="block text-slate-900 mb-0.5 font-black">💵 面額對照行</span>
+            <p class="font-medium text-slate-500 text-[8px] leading-tight">拿 100 抄 100 那行；拿 20 抄 20 那行即可。</p>
           </div>
           <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
             <span class="block text-slate-900 mb-0.5 font-black">✨ 鈔票不能破/髒</span>
@@ -535,27 +530,32 @@
       </div>
     </div>
 
-    <!-- 底部手帳專屬角落戳章 + 版本號 (升級為 Ver 1.1) -->
+    <!-- 底部手帳專屬角落戳章 + 版本號 (Ver 1.3) -->
     <footer class="text-center text-[9px] text-slate-400 font-bold pb-2 flex flex-col items-center gap-1">
       <div class="flex items-center gap-1.5 text-[10px]">
         <span class="bg-white border border-slate-300 rounded px-1.5 py-0.5 text-slate-600 font-black shadow-2xs">
           📅 <span id="footerTodayDate">2026.09.09</span>
         </span>
-        <span class="bg-amber-100 text-amber-900 border border-amber-300 rounded px-1.5 py-0.5 font-black shadow-2xs">
-          Ver 1.1
-        </span>
+        <button 
+          type="button" 
+          onclick="showVersionInfo()" 
+          class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded px-1.5 py-0.5 font-black shadow-2xs cursor-pointer active:scale-95 transition-transform"
+          title="點擊查看完整版本演進"
+        >
+          Ver 1.3 (含歷代紀錄)
+        </button>
       </div>
       <span>純前端單純計算 · 離線無網亦可秒開 · 祝旅途愉快 ✈️</span>
     </footer>
 
-    <!-- 使用說明彈窗 (Help Modal) -->
+    <!-- 使用說明與版本日誌彈窗 (Help Modal) -->
     <div id="helpModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4 hidden">
       <div class="doodle-box bg-white w-full max-w-md max-h-[85vh] overflow-y-auto p-3.5 sm:p-4 relative space-y-3">
         <!-- 彈窗頂部 -->
         <div class="flex items-center justify-between border-b border-dashed border-slate-200 pb-2">
           <div class="flex items-center gap-1.5">
             <span class="text-lg">📖</span>
-            <h3 class="text-sm sm:text-base font-black text-slate-800">換錢隨身手帳使用指南 (v1.1)</h3>
+            <h3 class="text-sm sm:text-base font-black text-slate-800">換錢隨身手帳使用指南</h3>
           </div>
           <button 
             type="button" 
@@ -566,20 +566,20 @@
           </button>
         </div>
 
-        <!-- 說明內容 0：核心亮點 — 為什麼需要這款小工具？（解決什麼痛點？） -->
+        <!-- 說明內容 0：核心亮點 -->
         <div class="bg-rose-50/90 p-2.5 rounded-xl border border-rose-300 text-[11px] leading-relaxed text-slate-800 space-y-1.5">
           <div class="font-black text-rose-950 flex items-center gap-1 text-xs">
             <span>💡</span><span>為什麼需要這本手帳？（一般匯率 App 做不到的事）</span>
           </div>
           <p class="text-[10px] text-rose-900/90 leading-normal">
-            出國換錢常陷入兩難：<strong>「到底該帶美金百元大鈔去換，還是直接帶千元台幣？」</strong> 市面上的主流 App 往往無法解決這個最後一哩路決策：
+            出國換錢常陷入兩難：<strong>「到底該帶美金大鈔去換，還是直接帶千元台幣？」</strong> 市面上的主流 App 往往無法解決這個最後一哩路決策：
           </p>
           <ul class="list-disc list-inside space-y-1 text-[10px] text-slate-700 pl-0.5">
             <li>
               <strong>打破傳統 App 盲點</strong>：一般 App 只能查 A 幣換 B 幣的官方中價，<strong>無法計算「先在台灣買美金 ➔ 再帶到當地換當地幣」的三角套算</strong>，更算不出你在台銀買美金被賺走的現鈔點差。
             </li>
             <li>
-              <strong>終結櫃檯前的數學恐慌</strong>：拖著行李排隊、後面有人逼近、看板一堆數字……本手帳只要照著抄 2 個黑色數字，<strong>一秒蓋印章告訴你掏哪種鈔票</strong>，免除心算焦慮！
+              <strong>終結櫃檯前的數學恐慌</strong>：拖著行李排隊、後面有人逼近、看板一堆數字……本手帳只要照著抄 2 個 WE BUY 買入數字，<strong>一秒蓋印章告訴你掏哪種鈔票</strong>，免除心算焦慮！
             </li>
             <li>
               <strong>超有感美食換算</strong>：不只比出勝負，還換算成「相當於免費多喝 5 杯泰奶 🧋 或多吃 1 碗牛肉河粉 🍜」，省多少一眼就懂！
@@ -596,8 +596,8 @@
             <span>⚡</span><span>站在換錢所前怎麼用？（極速三步驟）</span>
           </div>
           <ol class="list-decimal list-inside space-y-0.5 text-[10px] text-slate-700 pl-0.5">
-            <li><strong>點選國家</strong>：上方滑動郵票條點選目的地（如泰國、日本、韓國）。</li>
-            <li><strong>抄黑色數字</strong>：只看電視牆看板的 <span class="bg-amber-200 text-red-700 px-1 rounded font-black">WE BUY</span>（買入），將 USD 與 TWD 數字填入。</li>
+            <li><strong>點選國家</strong>：上方滑動郵票條點選目的地（如泰國、日本、韓國、越南、新馬等）。</li>
+            <li><strong>抄 WE BUY 數字</strong>：只看電視牆看板的 <span class="bg-amber-200 text-red-700 px-1 rounded font-black">WE BUY</span>（買入欄位），將 USD 與 TWD 數字填入（手上拿什麼面額就直接抄該行）。</li>
             <li><strong>看大印章結論</strong>：下方印章立刻告訴你【掏美金】還是【掏台幣】，連計算機都不用開！</li>
           </ol>
         </div>
@@ -610,7 +610,7 @@
           <p class="text-[10px] text-slate-700 leading-normal">
             換錢所換算的核心公式為：<br>
             <code class="bg-white px-1 py-0.5 rounded border border-blue-200 font-black text-blue-900">看板美金買入價 ÷ 看板台幣買入價 ＝ 當地隱含美金匯率</code><br>
-            • <strong>大於</strong> 你的美金成本（如 32.2）：用美金換更賺！<br>
+            • <strong>大於</strong> 你的美金成本（如 31.8）：用美金換更賺！<br>
             • <strong>小於</strong> 你的美金成本：直接掏千元台幣更划算！
           </p>
         </div>
@@ -618,18 +618,73 @@
         <!-- 說明內容 3：資料來源說明 -->
         <div class="bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-300 text-[11px] leading-relaxed text-slate-800 space-y-1">
           <div class="font-black text-emerald-950 flex items-center gap-1">
-            <span>🌐</span><span>資料來源與抓取機制</span>
+            <span>🌐</span><span>資料來源機制說明</span>
           </div>
           <ul class="list-disc list-inside space-y-0.5 text-[10px] text-slate-700 pl-0.5">
             <li><strong>🏦 臺灣銀行即時牌告</strong>：連網時自動透過公開代理抓取台銀官方 CSV 牌告，取得「美金現金賣出價（Cash Selling）」。</li>
             <li><strong>🌍 各國行情預設值</strong>：參考各地熱門換錢所（如曼谷 SuperRich、明洞大使館等）現鈔行情常模；連網時輔以公開即時外匯中間價動態校正。</li>
-            <li><strong>📴 100% 離線可用</strong>：剛下飛機無網路時，會自動切換為內建離線備案，絕不卡關。</li>
           </ul>
         </div>
 
-        <!-- 說明內容 4：小鈔折讓叮嚀 -->
-        <div class="bg-slate-50 p-2 rounded-xl border border-slate-200 text-[10px] text-slate-600 leading-tight">
-          💡 <strong>溫馨提醒</strong>：在東南亞換錢，美金 100 元新鈔匯率最優；折角、污損或小鈔（10~20元）常有 1%~3% 的扣趴，請善用「美金面額」按鈕切換試算！
+        <!-- 說明內容 4：完整版本演進紀錄 -->
+        <div id="changelogSection" class="bg-slate-50 p-2.5 rounded-xl border-2 border-slate-700 text-[10px] leading-relaxed text-slate-800 space-y-2">
+          <div class="font-black text-slate-900 flex items-center justify-between text-xs border-b border-slate-200 pb-1">
+            <span class="flex items-center gap-1">
+              <span>📜</span><span>版本更新履歷 (Changelog)</span>
+            </span>
+            <span class="text-[9px] bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded font-mono font-bold">歷史演進</span>
+          </div>
+
+          <!-- v1.3 更新內容 -->
+          <div class="bg-emerald-100/70 p-2 rounded-lg border border-emerald-300 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-emerald-950 flex items-center gap-1">
+                <span class="bg-emerald-500 text-white text-[8px] px-1 rounded font-black">CURRENT</span>
+                <span>✨ Ver 1.3【修正邏輯bug】</span>
+              </span>
+            </div>
+            <ul class="list-disc list-inside space-y-0.5 text-[9px] text-emerald-900 pl-0.5 font-medium">
+              <li><strong>修正邏輯bug</strong>：修正海外刷卡比對邏輯、輸入框清空狀態機重置、新馬百元計價防呆、生活美食動詞自然搭配與導引優化。</li>
+            </ul>
+          </div>
+
+          <!-- v1.2 更新內容 -->
+          <div class="bg-amber-100/70 p-2 rounded-lg border border-amber-300 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-amber-950 flex items-center gap-1">
+                <span class="bg-amber-300 text-amber-950 text-[8px] px-1 rounded font-black">ARCHIVE</span>
+                <span>✨ Ver 1.2【現場實戰防呆與抄表優化】</span>
+              </span>
+            </div>
+            <ul class="list-disc list-inside space-y-0.5 text-[9px] text-amber-900 pl-0.5 font-medium">
+              <li><strong>直覺照看板抄</strong>：移除手動小鈔按鈕，避免二次折讓，看板寫什麼就照抄該行。</li>
+              <li><strong>越盾 / 印尼盾智慧補零</strong>：識別省略 000 看板報價並自動補齊千位。</li>
+              <li><strong>美食換算微調</strong>：價差滿 1 份才換算食物，不足則顯示賺取小零錢。</li>
+            </ul>
+          </div>
+
+          <!-- v1.1 更新內容 -->
+          <div class="bg-blue-50/80 p-2 rounded-lg border border-blue-200 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-blue-950 flex items-center gap-1">
+                <span class="bg-blue-200 text-blue-900 text-[8px] px-1 rounded font-black">ARCHIVE</span>
+                <span>📘 Ver 1.1【新手指南與說明上線】</span>
+              </span>
+            </div>
+            <ul class="list-disc list-inside space-y-0.5 text-[9px] text-blue-900 pl-0.5 font-medium">
+              <li><strong>新增「❓ 說明」彈窗</strong>：專為第一次使用的旅客打造的隨身指南。</li>
+              <li><strong>痛點解密專區上線</strong>：打破傳統 App 算不出三角換匯現鈔差價的盲點。</li>
+              <li><strong>公開資料來源</strong>：揭露台銀 CSV 與公開即時匯率串接機制。</li>
+            </ul>
+          </div>
+
+          <!-- v1.0 原初核心架構 -->
+          <div class="bg-white p-1.5 rounded-lg border border-slate-200 text-slate-500 space-y-0.5">
+            <span class="font-bold text-slate-700 block">🌱 Ver 1.0【初代一屏掌握架構】</span>
+            <p class="text-[8px] leading-tight text-slate-500">
+              誕生「一屏掌握（Zero-Scroll）」雙欄並排看板、大印章勝負判定、戶外抗眩光強光模式與手繪日系手帳視覺。
+            </p>
+          </div>
         </div>
 
         <!-- 彈窗底部關閉鈕 -->
@@ -673,7 +728,7 @@
 
         if (type === 'stamp') {
           const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
+          const gain = audioGain = audioCtx.createGain();
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(140, now);
           osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
@@ -716,9 +771,18 @@
     }
 
     // 說明彈窗控制
-    function openHelpModal() {
+    function openHelpModal(scrollToSectionId = null) {
       playSound('pop');
-      document.getElementById('helpModal').classList.remove('hidden');
+      const modal = document.getElementById('helpModal');
+      modal.classList.remove('hidden');
+      if (scrollToSectionId) {
+        setTimeout(() => {
+          const target = document.getElementById(scrollToSectionId);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      }
     }
 
     function closeHelpModal() {
@@ -753,6 +817,7 @@
         unitName: '泰銖', 
         sampleUsd: '36.5', 
         sampleTwd: '1.12',
+        foodVerb: '喝',
         foodName: '杯手標泰奶', 
         foodPrice: 50, 
         foodIcon: '🧋' 
@@ -764,6 +829,7 @@
         unitName: '日圓', 
         sampleUsd: '155.0', 
         sampleTwd: '4.75',
+        foodVerb: '吃',
         foodName: '個超商明太子飯糰', 
         foodPrice: 180, 
         foodIcon: '🍙' 
@@ -775,6 +841,7 @@
         unitName: '韓元', 
         sampleUsd: '1385', 
         sampleTwd: '42.5',
+        foodVerb: '喝',
         foodName: '瓶香蕉牛奶', 
         foodPrice: 1800, 
         foodIcon: '🍌' 
@@ -786,6 +853,7 @@
         unitName: '越南盾', 
         sampleUsd: '25400', 
         sampleTwd: '780',
+        foodVerb: '吃',
         foodName: '碗道地生牛肉河粉', 
         foodPrice: 60000, 
         foodIcon: '🍜' 
@@ -797,6 +865,7 @@
         unitName: '印尼盾', 
         sampleUsd: '16200', 
         sampleTwd: '495',
+        foodVerb: '吃',
         foodName: '份沙嗲烤肉串髒鴨飯', 
         foodPrice: 50000, 
         foodIcon: '🍢' 
@@ -808,6 +877,7 @@
         unitName: '新幣', 
         sampleUsd: '1.34', 
         sampleTwd: '0.041',
+        foodVerb: '吃',
         foodName: '份亞坤咖椰吐司套餐', 
         foodPrice: 6, 
         foodIcon: '🍞' 
@@ -819,6 +889,7 @@
         unitName: '披索', 
         sampleUsd: '58.5', 
         sampleTwd: '1.75',
+        foodVerb: '喝',
         foodName: '杯現打芒果冰沙', 
         foodPrice: 120, 
         foodIcon: '🥭' 
@@ -830,6 +901,7 @@
         unitName: '令吉', 
         sampleUsd: '4.70', 
         sampleTwd: '0.142',
+        foodVerb: '吃',
         foodName: '份熱騰騰印度甩餅+拉茶', 
         foodPrice: 8, 
         foodIcon: '🥞' 
@@ -837,7 +909,6 @@
     ];
 
     let currentCountry = COUNTRIES[0];
-    let currentDenomination = 'large'; // 'large' or 'small'
 
     // DOM 元素引用
     const usdRateInput = document.getElementById('usdRateInput');
@@ -850,7 +921,7 @@
     const rewardText = document.getElementById('rewardText');
     const diffMoneyText = document.getElementById('diffMoneyText');
     const impliedRateText = document.getElementById('impliedRateText');
-    const breakEvenTargetRate = document.getElementById('breakEvenTargetRate');
+    const breakEvenText = document.getElementById('breakEvenText');
     const cardCompareText = document.getElementById('cardCompareText');
     const costSummaryBadge = document.getElementById('costSummaryBadge');
 
@@ -865,23 +936,6 @@
 
     let liveBotCashSellRate = 32.80;
     let liveRateSource = '預設估算';
-
-    function setBillDenomination(type) {
-      currentDenomination = type;
-      const btnLarge = document.getElementById('denomLargeBtn');
-      const btnSmall = document.getElementById('denomSmallBtn');
-
-      playSound('pop');
-
-      if (type === 'large') {
-        btnLarge.className = 'doodle-btn px-2 py-0.5 text-[9px] font-black bg-emerald-100 text-emerald-950 border border-slate-800';
-        btnSmall.className = 'doodle-btn px-2 py-0.5 text-[9px] font-bold bg-white text-slate-600 border border-slate-300';
-      } else {
-        btnSmall.className = 'doodle-btn px-2 py-0.5 text-[9px] font-black bg-amber-200 text-amber-950 border border-slate-800';
-        btnLarge.className = 'doodle-btn px-2 py-0.5 text-[9px] font-bold bg-white text-slate-600 border border-slate-300';
-      }
-      calculate();
-    }
 
     function selectBankPreset(clickedBtn) {
       playSound('pop');
@@ -1060,6 +1114,29 @@
       usdRateInput.placeholder = `如 ${c.sampleUsd}`;
       twdRateInput.placeholder = `如 ${c.sampleTwd}`;
 
+      // 智慧防呆提示條管理
+      const smartBanner = document.getElementById('smartNoticeBanner');
+      const smartNoticeText = document.getElementById('smartNoticeText');
+      const autoScaledBadge = document.getElementById('autoScaledBadge');
+
+      if (smartBanner && smartNoticeText) {
+        if (c.currency === 'VND' || c.currency === 'IDR') {
+          smartBanner.classList.remove('hidden');
+          smartNoticeText.innerHTML = `<span>💡</span><span>若看板省略 000（如寫 25.4），照打即可，手帳會<b>智慧補齊</b>！</span>`;
+          if (autoScaledBadge) autoScaledBadge.textContent = '已智慧補零';
+        } else if (c.currency === 'SGD') {
+          smartBanner.classList.remove('hidden');
+          smartNoticeText.innerHTML = `<span>💡</span><span>看板台幣若以 <b>100 元</b>標價（如寫 3.08），照打即可，手帳會<b>智慧除以 100</b>！</span>`;
+          if (autoScaledBadge) autoScaledBadge.textContent = '已除以 100';
+        } else if (c.currency === 'MYR') {
+          smartBanner.classList.remove('hidden');
+          smartNoticeText.innerHTML = `<span>💡</span><span>看板台幣若以 <b>100 元</b>標價（如寫 14.2），照打即可，手帳會<b>智慧除以 100</b>！</span>`;
+          if (autoScaledBadge) autoScaledBadge.textContent = '已除以 100';
+        } else {
+          smartBanner.classList.add('hidden');
+        }
+      }
+
       renderCountryButtons();
       showToast(`已切換為【${c.name}】行情！`);
       calculate();
@@ -1097,31 +1174,51 @@
 
     function calculate() {
       let rawUsdRate = parseFloat(usdRateInput.value);
-      const twdRate = parseFloat(twdRateInput.value);
+      let rawTwdRate = parseFloat(twdRateInput.value);
       const usdCost = parseFloat(usdCostInput.value) || 31.8;
       const budgetTwd = parseFloat(budgetInput.value) || 0;
 
       costSummaryBadge.textContent = usdCost.toFixed(2);
 
-      // 小鈔折讓約 2%
-      const effectiveUsdRate = currentDenomination === 'small' ? rawUsdRate * 0.98 : rawUsdRate;
+      // 智慧防呆校正：
+      // 1. 越南盾 (VND) / 印尼盾 (IDR) 省略 000 防呆
+      // 2. 新加坡幣 (SGD) / 馬來西亞令吉 (MYR) 百元報價防呆
+      let autoScaled = false;
+      let effectiveUsdRate = rawUsdRate;
+      let effectiveTwdRate = rawTwdRate;
 
-      // 損益平衡點
-      if (effectiveUsdRate && effectiveUsdRate > 0 && usdCost > 0) {
-        const breakEvenRate = effectiveUsdRate / usdCost;
-        if (['KRW', 'VND', 'IDR'].includes(currentCountry.currency)) {
-          breakEvenTargetRate.textContent = breakEvenRate.toFixed(1);
-        } else if (['JPY', 'THB', 'PHP'].includes(currentCountry.currency)) {
-          breakEvenTargetRate.textContent = breakEvenRate.toFixed(2);
-        } else {
-          breakEvenTargetRate.textContent = breakEvenRate.toFixed(3);
+      if (currentCountry.currency === 'VND' || currentCountry.currency === 'IDR') {
+        if (effectiveUsdRate && effectiveUsdRate > 0 && effectiveUsdRate < 1000) {
+          effectiveUsdRate = effectiveUsdRate * 1000;
+          autoScaled = true;
         }
-      } else {
-        breakEvenTargetRate.textContent = '--';
+        if (effectiveTwdRate && effectiveTwdRate > 0 && effectiveTwdRate < 10) {
+          effectiveTwdRate = effectiveTwdRate * 1000;
+          autoScaled = true;
+        }
+      } else if (currentCountry.currency === 'SGD') {
+        if (effectiveTwdRate && effectiveTwdRate > 0.5) {
+          effectiveTwdRate = effectiveTwdRate / 100;
+          autoScaled = true;
+        }
+      } else if (currentCountry.currency === 'MYR') {
+        if (effectiveTwdRate && effectiveTwdRate > 2.0) {
+          effectiveTwdRate = effectiveTwdRate / 100;
+          autoScaled = true;
+        }
+      }
+
+      const autoScaledBadge = document.getElementById('autoScaledBadge');
+      if (autoScaledBadge) {
+        if (autoScaled) {
+          autoScaledBadge.classList.remove('hidden');
+        } else {
+          autoScaledBadge.classList.add('hidden');
+        }
       }
 
       // 未輸入完全時的導引狀態
-      if (!rawUsdRate || !twdRate || rawUsdRate <= 0 || twdRate <= 0) {
+      if (!effectiveUsdRate || !effectiveTwdRate || effectiveUsdRate <= 0 || effectiveTwdRate <= 0) {
         verdictStamp.className = 'stamp-mark text-xs font-bold text-slate-600 border-slate-400 bg-slate-100';
         verdictStamp.textContent = '✏️ 等待輸入看板數字...';
         rewardIcon.textContent = '🗺️';
@@ -1130,15 +1227,35 @@
         usdFinalVal.textContent = '--';
         twdFinalVal.textContent = '--';
         impliedRateText.textContent = '--';
+
+        // 徹底重置兩側勝負高亮狀態
+        boxUsd.className = 'p-1.5 rounded-lg border border-slate-300 bg-slate-50';
+        boxTwd.className = 'p-1.5 rounded-lg border border-slate-300 bg-slate-50';
+        usdWinTag.classList.add('hidden');
+        twdWinTag.classList.add('hidden');
+
+        // 平衡線提示優化
+        if (effectiveUsdRate && effectiveUsdRate > 0 && usdCost > 0) {
+          const breakEvenRate = effectiveUsdRate / usdCost;
+          let beStr = formatCurrencyRate(breakEvenRate, currentCountry.currency);
+          breakEvenText.innerHTML = `台幣買入價高於 <strong class="text-blue-700 font-black text-xs" id="breakEvenTargetRate">${beStr}</strong> ➜ <span class="bg-blue-100 text-blue-900 px-1 rounded font-bold">掏台幣</span>，否則 ➜ <span class="bg-emerald-100 text-emerald-900 px-1 rounded font-bold">掏美金</span>！`;
+        } else {
+          breakEvenText.innerHTML = `<span class="text-amber-900 font-bold">請輸入美金價，即時為你計算損益平衡線！</span>`;
+        }
         return;
       }
 
-      // 1. 隱含匯率
-      const impliedRate = effectiveUsdRate / twdRate;
+      // 1. 計算損益平衡點
+      const breakEvenRate = effectiveUsdRate / usdCost;
+      const beStr = formatCurrencyRate(breakEvenRate, currentCountry.currency);
+      breakEvenText.innerHTML = `台幣買入價高於 <strong class="text-blue-700 font-black text-xs" id="breakEvenTargetRate">${beStr}</strong> ➜ <span class="bg-blue-100 text-blue-900 px-1 rounded font-bold">掏台幣</span>，否則 ➜ <span class="bg-emerald-100 text-emerald-900 px-1 rounded font-bold">掏美金</span>！`;
+
+      // 2. 隱含匯率
+      const impliedRate = effectiveUsdRate / effectiveTwdRate;
       impliedRateText.textContent = impliedRate.toFixed(2);
 
-      // 2. 兩種換匯結果
-      const totalByTwd = budgetTwd * twdRate;
+      // 3. 兩種換匯結果
+      const totalByTwd = budgetTwd * effectiveTwdRate;
       const usdEquivalent = budgetTwd / usdCost;
       const totalByUsd = usdEquivalent * effectiveUsdRate;
 
@@ -1146,23 +1263,25 @@
 
       usdFinalVal.textContent = `${fmt(totalByUsd)} ${currentCountry.unitName}`;
       twdFinalVal.textContent = `${fmt(totalByTwd)} ${currentCountry.unitName}`;
-      usdSubDetail.textContent = `拿約 $${usdEquivalent.toFixed(0)} 美元${currentDenomination === 'small' ? ' (小鈔折讓)' : ''}`;
+      usdSubDetail.textContent = `拿約 $${usdEquivalent.toFixed(0)} 美元`;
       twdSubDetail.textContent = `以 NT$ ${budgetTwd.toLocaleString()} 直換`;
 
       const diffLocal = Math.abs(totalByUsd - totalByTwd);
-      const diffTwd = Math.round(diffLocal / twdRate);
-      const foodCount = Math.max(1, Math.round(diffLocal / currentCountry.foodPrice));
+      const diffTwd = Math.round(diffLocal / effectiveTwdRate);
+      const foodCount = Math.floor(diffLocal / currentCountry.foodPrice);
+      const verb = currentCountry.foodVerb || '吃';
 
-      // 3. 海外刷卡比對
-      const cardBonusTwd = Math.round(budgetTwd * 0.015);
-      if (diffTwd > cardBonusTwd * 1.5) {
-        cardCompareText.textContent = `海外刷卡淨賺約 NT$ ${cardBonusTwd}，但現金換匯多賺 NT$ ${diffTwd}，現金勝！`;
-      } else {
-        cardCompareText.textContent = `差額不大，若不想帶大筆現金，刷 3% 海外神卡也很划算。`;
-      }
-
+      // 4. 海外信用卡現場決策輔助
+      const cardNetBonusTwd = Math.round(budgetTwd * 0.015);
       const percentageDiff = (diffLocal / Math.max(totalByUsd, totalByTwd)) * 100;
 
+      if (percentageDiff < 0.8 || diffTwd < 80) {
+        cardCompareText.textContent = `美金與台幣換匯差距極小（僅約 NT$ ${diffTwd}）。若不想排隊或帶大筆現鈔，直接刷 3% 海外神卡（扣除 1.5% 手續費淨賺約 NT$ ${cardNetBonusTwd}）也很輕鬆！`;
+      } else {
+        cardCompareText.textContent = `現金換匯勝出的方案可多賺約 NT$ ${diffTwd}；若手邊剛好沒有勝出幣別的現鈔，刷 3% 海外信用卡也是便捷備案（淨賺約 NT$ ${cardNetBonusTwd}）。`;
+      }
+
+      // 5. 勝負印章與美食換算
       if (percentageDiff < 0.4) {
         verdictStamp.className = 'stamp-mark text-sm font-black text-slate-700 border-slate-500 bg-slate-100';
         verdictStamp.textContent = '⚖️ 兩者差不多！';
@@ -1179,7 +1298,11 @@
         verdictStamp.className = 'stamp-mark stamp-win text-base sm:text-lg';
         verdictStamp.textContent = '🎉 請掏【美金】換！';
         rewardIcon.textContent = currentCountry.foodIcon;
-        rewardText.textContent = `多拿的錢，相當於免費多吃 ${foodCount} ${currentCountry.foodName}！`;
+        if (foodCount >= 1) {
+          rewardText.textContent = `多拿的錢，相當於免費多${verb} ${foodCount} ${currentCountry.foodName}！`;
+        } else {
+          rewardText.textContent = `多拿的錢，相當於多賺到一筆小零錢！`;
+        }
         diffMoneyText.textContent = `現賺約 ${fmt(diffLocal)} ${currentCountry.unitName}（約 NT$ ${diffTwd.toLocaleString()} 元）`;
 
         boxUsd.className = 'p-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-50/80 shadow-xs';
@@ -1192,7 +1315,11 @@
         verdictStamp.className = 'stamp-mark stamp-twd text-base sm:text-lg';
         verdictStamp.textContent = '🇹🇼 請掏【台幣】直換！';
         rewardIcon.textContent = currentCountry.foodIcon;
-        rewardText.textContent = `直接拿台幣換，相當於免費多賺 ${foodCount} ${currentCountry.foodName}！`;
+        if (foodCount >= 1) {
+          rewardText.textContent = `直接拿台幣換，相當於免費多${verb} ${foodCount} ${currentCountry.foodName}！`;
+        } else {
+          rewardText.textContent = `直接拿台幣換，相當於多賺到一筆小零錢！`;
+        }
         diffMoneyText.textContent = `現賺約 ${fmt(diffLocal)} ${currentCountry.unitName}（約 NT$ ${diffTwd.toLocaleString()} 元）`;
 
         boxTwd.className = 'p-1.5 rounded-lg border-2 border-blue-500 bg-blue-50/80 shadow-xs';
@@ -1200,6 +1327,16 @@
         twdWinTag.classList.remove('hidden');
         usdWinTag.classList.add('hidden');
         playSound('stamp');
+      }
+    }
+
+    function formatCurrencyRate(rate, currency) {
+      if (['KRW', 'VND', 'IDR'].includes(currency)) {
+        return rate.toFixed(1);
+      } else if (['JPY', 'THB', 'PHP'].includes(currency)) {
+        return rate.toFixed(2);
+      } else {
+        return rate.toFixed(3);
       }
     }
 
@@ -1211,13 +1348,14 @@
       const verdict = verdictStamp.textContent.trim();
       const reward = rewardText.textContent.trim();
       const budget = budgetInput.value;
-      const denomNote = currentDenomination === 'small' ? '（10-20 小鈔折讓試算）' : '（50-100 大鈔）';
       const todayStr = getFormattedDate();
+      const breakEvenTargetEl = document.getElementById('breakEvenTargetRate');
+      const breakEvenVal = breakEvenTargetEl ? breakEvenTargetEl.textContent : '--';
 
       const report = `【✈️ 換錢所即時算好囉！】\n` +
-                     `📅 記錄日期：${todayStr} (v1.1)\n` +
+                     `📅 記錄日期：${todayStr} (v1.3)\n` +
                      `📍 地點：${currentCountry.name} (${currentCountry.currency})\n` +
-                     `• 看板美金 We Buy：${usdRate} ${denomNote}\n` +
+                     `• 看板美金 We Buy：${usdRate}\n` +
                      `• 看板台幣 We Buy：${twdRate}\n` +
                      `• 美金入手成本：1 USD = NT$ ${usdCost}\n` +
                      `• 試算預算：NT$ ${Number(budget).toLocaleString()}\n` +
@@ -1226,7 +1364,7 @@
                      `💡 ${reward}\n` +
                      `💵 拿美金換得：${usdFinalVal.textContent}\n` +
                      `🇹🇼 拿台幣換得：${twdFinalVal.textContent}\n` +
-                     `🎯 現場平衡界線：看板台幣 > ${breakEvenTargetRate.textContent} 掏台幣，否則掏美金！`;
+                     `🎯 現場平衡界線：${breakEvenVal !== '--' ? `看板台幣 > ${breakEvenVal} 掏台幣，否則掏美金！` : '請參考現場美金看板計算'}`;
 
       const tempArea = document.createElement('textarea');
       tempArea.value = report;
@@ -1264,7 +1402,8 @@
 
     function showVersionInfo() {
       playSound('pop');
-      showToast('📖 手帳版本 v1.1：新增新手說明指南 · 一屏秒算離線可用！');
+      openHelpModal('changelogSection');
+      showToast('📜 已展開版本更新履歷 (v1.3)！');
     }
 
     function showToast(msg) {
