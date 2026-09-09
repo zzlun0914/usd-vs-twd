@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>出國換錢隨身手帳 | 一屏秒算美金 vs 台幣</title>
+  
+  <!-- Google Fonts: 圓潤手寫與日系手帳字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Patrick+Hand&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Zen Maru Gothic"', '"Patrick Hand"', 'sans-serif'],
+            hand: ['"Patrick Hand"', '"Gaegu"', 'cursive'],
+          },
+          colors: {
+            paper: '#FAF6EE',
+            ink: '#2D3748',
+            tapeYellow: '#FEF08A',
+            tapeBlue: '#BAE6FD',
+            tapePink: '#FBCFE8',
+            tapeGreen: '#BBF7D0',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* 手繪方格紙背景效果 */
+    body {
+      background-color: #FAF6EE;
+      background-image: 
+        linear-gradient(rgba(215, 204, 185, 0.35) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(215, 204, 185, 0.35) 1px, transparent 1px);
+      background-size: 20px 20px;
+      color: #2D3748;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.2s ease;
+    }
+
+    /* 戶外強光抗眩高對比模式 */
+    body.sunlight-mode {
+      background-color: #FFFFFF;
+      background-image: none;
+      color: #000000;
+    }
+    body.sunlight-mode .doodle-box {
+      border: 3px solid #000000 !important;
+      box-shadow: 4px 5px 0px #000000 !important;
+      background: #FFFFFF !important;
+    }
+    body.sunlight-mode input {
+      border-color: #000000 !important;
+      color: #000000 !important;
+      font-weight: 900 !important;
+    }
+
+    /* 手繪有機感邊框 (不規則圓角) */
+    .doodle-box {
+      border: 2px solid #2D3748;
+      border-radius: 18px 14px 20px 15px / 15px 20px 14px 18px;
+      background: #FFFFFF;
+      box-shadow: 3px 4px 0px #2D3748;
+      transition: all 0.2s ease;
+    }
+
+    .doodle-btn {
+      border: 2px solid #2D3748;
+      border-radius: 12px 14px 10px 13px;
+      box-shadow: 2px 2px 0px #2D3748;
+      transition: all 0.12s ease;
+      cursor: pointer;
+    }
+    .doodle-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px #2D3748;
+    }
+
+    /* 印章效果 (Stamp Effect) */
+    .stamp-mark {
+      border: 3px dashed #EF4444;
+      border-radius: 14px;
+      color: #EF4444;
+      display: inline-block;
+      padding: 4px 14px;
+      font-weight: 900;
+      transform: rotate(-2deg);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(254, 242, 242, 0.95);
+      box-shadow: inset 0 0 6px rgba(239, 68, 68, 0.12);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .stamp-win {
+      border: 3px dashed #059669;
+      color: #059669;
+      background: rgba(236, 253, 245, 0.95);
+    }
+    .stamp-twd {
+      border: 3px dashed #2563EB;
+      color: #1D4ED8;
+      background: rgba(239, 246, 255, 0.95);
+    }
+
+    /* 隱藏原生卷軸但保有滑動能力 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* 移除原生數字輸入箭頭 */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen py-2.5 px-2.5 sm:py-6 sm:px-4 flex flex-col items-center justify-start">
+
+  <div class="w-full max-w-md mx-auto space-y-2.5 sm:space-y-3.5">
+
+    <!-- 頂部超精簡工具列：Logo + 快速功能鍵 -->
+    <div class="flex items-center justify-between px-1">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">✈️</span>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-sm sm:text-base font-black text-slate-800 tracking-tight">
+              換錢速算手帳
+            </h1>
+            <!-- 版本號小印章 (可點擊) -->
+            <button 
+              type="button" 
+              onclick="showVersionInfo()" 
+              class="text-[9px] bg-amber-200 hover:bg-amber-300 text-amber-900 px-1.5 py-0.2 rounded font-black border border-amber-300 shadow-2xs active:scale-95 transition-transform"
+              title="點擊查看版本資訊"
+            >
+              v1.0
+            </button>
+          </div>
+          <!-- 動態手帳日期郵戳標籤 -->
+          <div class="flex items-center gap-1 text-[9px] font-bold text-slate-400 leading-none mt-0.5">
+            <span>🗓️</span>
+            <span id="headerTodayDate">載入日期中...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1">
+        <button 
+          type="button" 
+          id="soundToggleBtn" 
+          onclick="toggleSound()" 
+          class="p-1 px-1.5 bg-white border border-slate-300 rounded-lg text-[10px] font-black text-slate-700 hover:bg-slate-50 flex items-center gap-0.5 shadow-xs"
+          title="切換音效"
+        >
+          <span id="soundIcon">🔔</span>
+        </button>
+
+        <button 
+          type="button" 
+          id="sunlightToggleBtn" 
+          onclick="toggleSunlightMode()" 
+          class="p-1 px-1.5 bg-white border border-slate-300 rounded-lg text-[10px] font-black text-slate-700 hover:bg-slate-50 flex items-center gap-0.5 shadow-xs"
+          title="戶外強光清晰模式"
+        >
+          <span>☀️</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 第 1 步：國家橫向卷軸郵票條 (取代長條方塊，僅佔 52px 高度) -->
+    <div class="doodle-box p-1.5 relative bg-white">
+      <div class="flex items-center justify-between px-1.5 mb-1">
+        <span class="text-[10px] font-black text-slate-600 flex items-center gap-1">
+          <span>📍 點選旅遊地：</span>
+        </span>
+        <span class="text-[9px] text-amber-700 font-bold bg-amber-50 px-1 rounded">
+          👉 左右滑動快速切換
+        </span>
+      </div>
+      
+      <!-- 橫向滑動列 -->
+      <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5 px-0.5" id="countryScrollRow">
+        <!-- JS 動態生成橫向郵票貼紙按鈕 -->
+      </div>
+    </div>
+
+    <!-- 第 2 步：現場看板輸入（雙欄並排！高度省下 50%） -->
+    <div class="doodle-box p-2.5 relative bg-white">
+      <!-- 看板小指引 + 快捷操作 -->
+      <div class="flex items-center justify-between mb-1.5 text-[10px]">
+        <div class="flex items-center gap-1 font-black text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+          <span>👀</span>
+          <span>盯緊看板 <span class="bg-amber-200 text-red-700 px-1 rounded font-black">WE BUY</span></span>
+        </div>
+        <div class="flex items-center gap-1">
+          <button 
+            type="button" 
+            onclick="resetToSampleRates()" 
+            class="px-1.5 py-0.5 bg-slate-50 border border-slate-300 rounded text-[9px] font-black text-slate-700 active:scale-95 transition-all"
+            title="載入近期平均匯率"
+          >
+            🔄 帶入行情
+          </button>
+          <button 
+            type="button" 
+            onclick="clearKioskInputs()" 
+            class="px-1.5 py-0.5 bg-slate-50 border border-slate-300 rounded text-[9px] font-black text-slate-500 active:scale-95 transition-all"
+            title="清空輸入框"
+          >
+            🗑️ 清空
+          </button>
+        </div>
+      </div>
+
+      <!-- 核心：左右雙欄並排輸入框 -->
+      <div class="grid grid-cols-2 gap-2">
+        <!-- 左欄：美金看板價 -->
+        <div class="bg-emerald-50/70 p-2 rounded-xl border-2 border-slate-700">
+          <div class="flex justify-between items-center mb-0.5">
+            <span class="text-[11px] font-black text-emerald-950 flex items-center gap-0.5">
+              <span>💵 美金 USD</span>
+            </span>
+            <span class="text-[8px] text-emerald-700 font-bold bg-emerald-100 px-1 rounded">1 USD=</span>
+          </div>
+          <div class="relative flex items-center">
+            <input 
+              type="number" 
+              id="usdRateInput" 
+              inputmode="decimal" 
+              step="any" 
+              placeholder="如 36.5" 
+              class="w-full bg-white border border-slate-700 rounded-lg px-2 py-1 text-base sm:text-lg font-black text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-left pr-9"
+            >
+            <span class="absolute right-1.5 text-[10px] font-black text-slate-400 current-currency-name pointer-events-none">當地幣</span>
+          </div>
+        </div>
+
+        <!-- 右欄：台幣看板價 -->
+        <div class="bg-blue-50/70 p-2 rounded-xl border-2 border-slate-700">
+          <div class="flex justify-between items-center mb-0.5">
+            <span class="text-[11px] font-black text-blue-950 flex items-center gap-0.5">
+              <span>🇹🇼 台幣 TWD</span>
+            </span>
+            <span class="text-[8px] text-blue-700 font-bold bg-blue-100 px-1 rounded">1 TWD=</span>
+          </div>
+          <div class="relative flex items-center">
+            <input 
+              type="number" 
+              id="twdRateInput" 
+              inputmode="decimal" 
+              step="any" 
+              placeholder="如 1.12" 
+              class="w-full bg-white border border-slate-700 rounded-lg px-2 py-1 text-base sm:text-lg font-black text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400 text-left pr-9"
+            >
+            <span class="absolute right-1.5 text-[10px] font-black text-slate-400 current-currency-name pointer-events-none">當地幣</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 面額快速切換膠囊 (極簡單行) -->
+      <div class="mt-2 pt-1.5 border-t border-slate-200/80 flex items-center justify-between text-[10px]">
+        <div class="flex items-center gap-1">
+          <span class="font-bold text-slate-600">美金面額：</span>
+          <button 
+            type="button" 
+            id="denomLargeBtn" 
+            onclick="setBillDenomination('large')"
+            class="doodle-btn px-2 py-0.5 text-[9px] font-black bg-emerald-100 text-emerald-950 border border-slate-800"
+          >
+            100 大鈔
+          </button>
+          <button 
+            type="button" 
+            id="denomSmallBtn" 
+            onclick="setBillDenomination('small')"
+            class="doodle-btn px-2 py-0.5 text-[9px] font-bold bg-white text-slate-600 border border-slate-300"
+          >
+            10~20 零鈔 (-2%)
+          </button>
+        </div>
+
+        <!-- 觸發設定抽屜的小標籤 -->
+        <button 
+          type="button" 
+          onclick="toggleDrawer()" 
+          class="text-[9px] font-black text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-300"
+        >
+          <span>美金成本: <strong id="costSummaryBadge">31.8</strong></span>
+          <span id="drawerArrow">⚙️▾</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 第 3 步：命運大揭曉（第一屏直達！無須往下滑） -->
+    <div id="resultCard" class="doodle-box p-3 relative bg-white text-center">
+      <!-- 醒目勝負大印章 -->
+      <div class="flex items-center justify-center gap-1.5 mb-1">
+        <div id="verdictStamp" class="stamp-mark stamp-win text-base sm:text-lg">
+          🎉 請掏【美金】換！
+        </div>
+      </div>
+
+      <!-- 數學苦手必備：一眼秒殺魔法便籤 -->
+      <div class="bg-amber-50/90 border border-dashed border-amber-400 rounded-xl px-2 py-1.5 my-1.5 text-left flex items-center gap-1.5">
+        <span class="text-base shrink-0">🎯</span>
+        <div class="text-[10px] leading-tight text-slate-800">
+          <span class="font-black text-amber-950">現場一眼定勝負：</span>
+          <span class="text-slate-700">
+            台幣買入價高於 <strong class="text-blue-700 font-black text-xs" id="breakEvenTargetRate">1.15</strong> ➜ <span class="bg-blue-100 text-blue-900 px-1 rounded font-bold">掏台幣</span>，否則 ➜ <span class="bg-emerald-100 text-emerald-900 px-1 rounded font-bold">掏美金</span>！
+          </span>
+        </div>
+      </div>
+
+      <!-- 生活美食具體換算 -->
+      <div class="bg-amber-100/60 border border-amber-300 rounded-xl p-2 my-1.5 text-left flex items-center gap-2">
+        <div class="text-2xl" id="rewardIcon">🧋</div>
+        <div class="leading-tight">
+          <div class="text-[11px] font-black text-amber-950" id="rewardText">
+            多拿的錢，相當於免費多喝 5 杯泰奶！
+          </div>
+          <div class="text-[9px] text-amber-800 mt-0.5" id="diffMoneyText">
+            多拿約 280 泰銖（現賺約 NT$ 250 元）
+          </div>
+        </div>
+      </div>
+
+      <!-- 雙欄換算數據對比 -->
+      <div class="grid grid-cols-2 gap-1.5 text-left mt-1.5">
+        <div id="boxUsd" class="p-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-50/70">
+          <div class="flex items-center justify-between text-[9px] font-black text-emerald-900">
+            <span>💵 掏美金換得</span>
+            <span id="usdWinTag" class="text-[8px] bg-emerald-600 text-white px-1 rounded">最划算</span>
+          </div>
+          <div class="text-sm font-black text-emerald-950 mt-0.5" id="usdFinalVal">0</div>
+          <div class="text-[8px] text-emerald-700" id="usdSubDetail">拿約 $314 美元</div>
+        </div>
+
+        <div id="boxTwd" class="p-1.5 rounded-lg border border-slate-300 bg-slate-50">
+          <div class="flex items-center justify-between text-[9px] font-black text-slate-700">
+            <span>🇹🇼 掏台幣換得</span>
+            <span id="twdWinTag" class="hidden text-[8px] bg-blue-600 text-white px-1 rounded">最划算</span>
+          </div>
+          <div class="text-sm font-black text-slate-800 mt-0.5" id="twdFinalVal">0</div>
+          <div class="text-[8px] text-slate-500" id="twdSubDetail">免手續費直換</div>
+        </div>
+      </div>
+
+      <!-- 看板牌告折合 + 複製給旅伴 -->
+      <div class="flex items-center justify-between pt-2 mt-1.5 border-t border-dashed border-slate-200 text-[9px]">
+        <span class="text-slate-500 font-bold">
+          牌告比例：1 USD ≈ <span id="impliedRateText" class="text-slate-800 font-black">32.5</span> TWD
+        </span>
+        <button 
+          type="button" 
+          onclick="copyReport()" 
+          class="doodle-btn px-2.5 py-1 bg-amber-300 hover:bg-amber-400 text-slate-900 font-black text-[10px] flex items-center gap-1"
+        >
+          <span>💌 複製結果傳 LINE</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 手帳摺疊暗袋：美金成本微調、預算、刷卡評比與避坑指南（點擊才展開，不佔首屏空間） -->
+    <div class="doodle-box p-2.5 bg-white">
+      <button 
+        type="button" 
+        id="accordionHeaderBtn"
+        onclick="toggleDrawer()" 
+        class="w-full flex items-center justify-between text-left text-xs font-black text-slate-700 hover:text-slate-900 transition-colors"
+      >
+        <span class="flex items-center gap-1">
+          <span>🎒 進階手帳暗袋</span>
+          <span class="text-[9px] text-slate-400 font-normal">（美金成本微調 / 預算 / 避坑小抄）</span>
+        </span>
+        <span id="accordionChevron" class="text-sm transition-transform duration-200">➕</span>
+      </button>
+
+      <!-- 抽屜本體 (預設收合) -->
+      <div id="drawerContent" class="hidden mt-2 pt-2 border-t border-dashed border-slate-200 space-y-2.5">
+        
+        <!-- 子項目 1：美金持有成本調整 -->
+        <div class="bg-amber-50/80 p-2 rounded-xl border border-amber-300">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] font-black text-amber-950 flex items-center gap-1">
+              <span>💳 你的美金入手成本：</span>
+            </span>
+            <span id="botSourceBadge" class="text-[9px] text-slate-500">載入中...</span>
+          </div>
+
+          <!-- 3 種快選情境 -->
+          <div class="grid grid-cols-3 gap-1 mb-1.5 text-center">
+            <button 
+              type="button" 
+              id="btnCostOld"
+              onclick="setUsdCostPreset(30.50, this)" 
+              class="cost-preset-btn doodle-btn p-1 text-slate-700 bg-white hover:bg-amber-100 text-[10px]"
+            >
+              <span class="font-black block">🎒 早年存的</span>
+              <span class="text-[8px] text-slate-500">約 30.5</span>
+            </button>
+
+            <button 
+              type="button" 
+              id="btnCostForgot"
+              onclick="setUsdCostPreset(31.80, this)" 
+              class="cost-preset-btn doodle-btn p-1 bg-amber-200 text-amber-950 border border-slate-800 text-[10px]"
+            >
+              <span class="font-black block">🤷 想不起來</span>
+              <span class="text-[8px] text-amber-800">折衷 31.8</span>
+            </button>
+
+            <button 
+              type="button" 
+              id="btnCostBank"
+              onclick="selectBankPreset(this)" 
+              class="cost-preset-btn doodle-btn p-1 text-slate-700 bg-white hover:bg-amber-100 text-[10px] relative"
+            >
+              <span class="font-black block flex items-center justify-center gap-0.5">
+                <span>🏦 臨櫃新鈔</span>
+                <span id="botSyncDot" class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-pulse"></span>
+              </span>
+              <span id="bankRateSubtitle" class="text-[8px] text-emerald-700 font-bold block">連線中</span>
+            </button>
+          </div>
+
+          <!-- 數值輸入與單手微調 -->
+          <div class="flex items-center justify-between gap-1 pt-1 border-t border-amber-200/80">
+            <div class="flex items-center gap-1">
+              <span class="text-[9px] font-bold text-amber-900">手動：</span>
+              <input 
+                type="number" 
+                id="usdCostInput" 
+                value="31.80" 
+                step="0.05" 
+                inputmode="decimal"
+                class="w-16 bg-white border border-slate-700 rounded px-1 py-0.5 text-xs font-black text-slate-900 text-center"
+              >
+            </div>
+            <div class="flex gap-1">
+              <button type="button" onclick="adjustUsdCost(-0.5)" class="doodle-btn px-1.5 py-0.2 bg-white text-[9px] font-black">-0.5</button>
+              <button type="button" onclick="adjustUsdCost(-0.1)" class="doodle-btn px-1.5 py-0.2 bg-white text-[9px] font-black">-0.1</button>
+              <button type="button" onclick="adjustUsdCost(0.1)" class="doodle-btn px-1.5 py-0.2 bg-white text-[9px] font-black">+0.1</button>
+              <button type="button" onclick="adjustUsdCost(0.5)" class="doodle-btn px-1.5 py-0.2 bg-white text-[9px] font-black">+0.5</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 子項目 2：旅費預算調整 -->
+        <div class="bg-purple-50/70 p-2 rounded-xl border border-purple-200">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-black text-purple-950">打算換多少台幣？</span>
+            <div class="flex gap-1">
+              <button type="button" onclick="setQuickBudget(5000)" class="budget-chip doodle-btn px-1.5 py-0.2 text-[9px] bg-white">5千</button>
+              <button type="button" onclick="setQuickBudget(10000)" class="budget-chip doodle-btn px-1.5 py-0.2 text-[9px] bg-amber-200 text-amber-950 font-black">1萬</button>
+              <button type="button" onclick="setQuickBudget(20000)" class="budget-chip doodle-btn px-1.5 py-0.2 text-[9px] bg-white">2萬</button>
+              <button type="button" onclick="setQuickBudget(30000)" class="budget-chip doodle-btn px-1.5 py-0.2 text-[9px] bg-white">3萬</button>
+            </div>
+          </div>
+          <div class="relative">
+            <input 
+              type="number" 
+              id="budgetInput" 
+              value="10000" 
+              step="1000" 
+              class="w-full bg-white border border-slate-400 rounded-lg px-2 py-1 text-xs font-black text-slate-800"
+            >
+            <span class="absolute right-2 top-1 text-[9px] text-slate-400 font-bold">元台幣</span>
+          </div>
+        </div>
+
+        <!-- 子項目 3：海外 3% 信用卡比一比 -->
+        <div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-2 text-left flex items-center justify-between text-[10px]">
+          <div class="flex items-center gap-1.5 text-indigo-950">
+            <span>💳</span>
+            <div>
+              <span class="font-black">海外 3% 信用卡比對：</span>
+              <span class="text-[9px] text-indigo-700 block" id="cardCompareText">
+                扣除 1.5% 交易手續費後，淨賺約 1.5%（約 NT$ 150）
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 子項目 4：防踩坑便籤 -->
+        <div class="grid grid-cols-2 gap-1.5 text-[9px] text-slate-700 font-bold">
+          <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+            <span class="block text-slate-900 mb-0.5 font-black">💵 美金認明 100</span>
+            <p class="font-medium text-slate-500 text-[8px] leading-tight">小鈔如 10、20 面額匯率常被砍 1~3%。</p>
+          </div>
+          <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+            <span class="block text-slate-900 mb-0.5 font-black">✨ 鈔票不能破/髒</span>
+            <p class="font-medium text-slate-500 text-[8px] leading-tight">有筆跡或小撕裂，許多換錢所會拒收。</p>
+          </div>
+          <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+            <span class="block text-slate-900 mb-0.5 font-black">👀 看準 WE BUY</span>
+            <p class="font-medium text-slate-500 text-[8px] leading-tight">千萬別看成換錢所賣出 (SELL) 的價格。</p>
+          </div>
+          <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+            <span class="block text-slate-900 mb-0.5 font-black">🧮 離櫃前點兩遍</span>
+            <p class="font-medium text-slate-500 text-[8px] leading-tight">在櫃台前親手數清，離開櫃台一律不認。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 底部手帳專屬角落戳章 + 版本號 -->
+    <footer class="text-center text-[9px] text-slate-400 font-bold pb-2 flex flex-col items-center gap-1">
+      <div class="flex items-center gap-1.5 text-[10px]">
+        <span class="bg-white border border-slate-300 rounded px-1.5 py-0.5 text-slate-600 font-black shadow-2xs">
+          📅 <span id="footerTodayDate">2026.09.09</span>
+        </span>
+        <span class="bg-amber-100 text-amber-900 border border-amber-300 rounded px-1.5 py-0.5 font-black shadow-2xs">
+          Ver 1.0
+        </span>
+      </div>
+      <span>純前端單純計算 · 離線無網亦可秒開 · 祝旅途愉快 ✈️</span>
+    </footer>
+
+    <!-- 浮動提示 Toast -->
+    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/95 text-amber-200 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg pointer-events-none transition-all duration-200 opacity-0 translate-y-2 z-50 flex items-center gap-1 border border-amber-400">
+      <span id="toastMsg">✅ 已複製到剪貼簿！</span>
+    </div>
+
+  </div>
+
+  <script>
+    /* ========================================================
+     * 音效合成器 (Web Audio API - 純程式碼合成，免外部音檔)
+     * ======================================================== */
+    let audioCtx = null;
+    let isSoundEnabled = true;
+
+    function playSound(type) {
+      if (!isSoundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'stamp') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.12);
+        } else if (type === 'pop') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        }
+      } catch (e) {}
+
+      if (navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+    }
+
+    function toggleSound() {
+      isSoundEnabled = !isSoundEnabled;
+      document.getElementById('soundIcon').textContent = isSoundEnabled ? '🔔' : '🔕';
+      showToast(isSoundEnabled ? '🔔 音效已開啟' : '🔕 靜音模式');
+    }
+
+    function toggleSunlightMode() {
+      document.body.classList.toggle('sunlight-mode');
+      const isSun = document.body.classList.contains('sunlight-mode');
+      showToast(isSun ? '☀️ 已開啟戶外強光高對比模式' : '🌤️ 恢復手帳原色模式');
+    }
+
+    // 摺疊抽屜切換
+    function toggleDrawer() {
+      playSound('pop');
+      const drawer = document.getElementById('drawerContent');
+      const chevron = document.getElementById('accordionChevron');
+      const arrow = document.getElementById('drawerArrow');
+      const isHidden = drawer.classList.contains('hidden');
+
+      if (isHidden) {
+        drawer.classList.remove('hidden');
+        chevron.textContent = '➖';
+        arrow.textContent = '⚙️▴';
+      } else {
+        drawer.classList.add('hidden');
+        chevron.textContent = '➕';
+        arrow.textContent = '⚙️▾';
+      }
+    }
+
+    const COUNTRIES = [
+      { 
+        name: '泰國', 
+        flag: '🇹🇭', 
+        currency: 'THB', 
+        unitName: '泰銖', 
+        sampleUsd: '36.5', 
+        sampleTwd: '1.12',
+        foodName: '杯手標泰奶', 
+        foodPrice: 50, 
+        foodIcon: '🧋' 
+      },
+      { 
+        name: '日本', 
+        flag: '🇯🇵', 
+        currency: 'JPY', 
+        unitName: '日圓', 
+        sampleUsd: '155.0', 
+        sampleTwd: '4.75',
+        foodName: '個超商明太子飯糰', 
+        foodPrice: 180, 
+        foodIcon: '🍙' 
+      },
+      { 
+        name: '韓國', 
+        flag: '🇰🇷', 
+        currency: 'KRW', 
+        unitName: '韓元', 
+        sampleUsd: '1385', 
+        sampleTwd: '42.5',
+        foodName: '瓶香蕉牛奶', 
+        foodPrice: 1800, 
+        foodIcon: '🍌' 
+      },
+      { 
+        name: '越南', 
+        flag: '🇻🇳', 
+        currency: 'VND', 
+        unitName: '越南盾', 
+        sampleUsd: '25400', 
+        sampleTwd: '780',
+        foodName: '碗道地生牛肉河粉', 
+        foodPrice: 60000, 
+        foodIcon: '🍜' 
+      },
+      { 
+        name: '峇里島', 
+        flag: '🇮🇩', 
+        currency: 'IDR', 
+        unitName: '印尼盾', 
+        sampleUsd: '16200', 
+        sampleTwd: '495',
+        foodName: '份沙嗲烤肉串髒鴨飯', 
+        foodPrice: 50000, 
+        foodIcon: '🍢' 
+      },
+      { 
+        name: '新加坡', 
+        flag: '🇸🇬', 
+        currency: 'SGD', 
+        unitName: '新幣', 
+        sampleUsd: '1.34', 
+        sampleTwd: '0.041',
+        foodName: '份亞坤咖椰吐司套餐', 
+        foodPrice: 6, 
+        foodIcon: '🍞' 
+      },
+      { 
+        name: '菲律賓', 
+        flag: '🇵🇭', 
+        currency: 'PHP', 
+        unitName: '披索', 
+        sampleUsd: '58.5', 
+        sampleTwd: '1.75',
+        foodName: '杯現打芒果冰沙', 
+        foodPrice: 120, 
+        foodIcon: '🥭' 
+      },
+      { 
+        name: '馬來西亞', 
+        flag: '🇲🇾', 
+        currency: 'MYR', 
+        unitName: '令吉', 
+        sampleUsd: '4.70', 
+        sampleTwd: '0.142',
+        foodName: '份熱騰騰印度甩餅+拉茶', 
+        foodPrice: 8, 
+        foodIcon: '🥞' 
+      }
+    ];
+
+    let currentCountry = COUNTRIES[0];
+    let currentDenomination = 'large'; // 'large' or 'small'
+
+    // DOM 元素引用
+    const usdRateInput = document.getElementById('usdRateInput');
+    const twdRateInput = document.getElementById('twdRateInput');
+    const usdCostInput = document.getElementById('usdCostInput');
+    const budgetInput = document.getElementById('budgetInput');
+
+    const verdictStamp = document.getElementById('verdictStamp');
+    const rewardIcon = document.getElementById('rewardIcon');
+    const rewardText = document.getElementById('rewardText');
+    const diffMoneyText = document.getElementById('diffMoneyText');
+    const impliedRateText = document.getElementById('impliedRateText');
+    const breakEvenTargetRate = document.getElementById('breakEvenTargetRate');
+    const cardCompareText = document.getElementById('cardCompareText');
+    const costSummaryBadge = document.getElementById('costSummaryBadge');
+
+    const boxUsd = document.getElementById('boxUsd');
+    const boxTwd = document.getElementById('boxTwd');
+    const usdWinTag = document.getElementById('usdWinTag');
+    const twdWinTag = document.getElementById('twdWinTag');
+    const usdFinalVal = document.getElementById('usdFinalVal');
+    const twdFinalVal = document.getElementById('twdFinalVal');
+    const usdSubDetail = document.getElementById('usdSubDetail');
+    const twdSubDetail = document.getElementById('twdSubDetail');
+
+    let liveBotCashSellRate = 32.80;
+    let liveRateSource = '預設估算';
+
+    function setBillDenomination(type) {
+      currentDenomination = type;
+      const btnLarge = document.getElementById('denomLargeBtn');
+      const btnSmall = document.getElementById('denomSmallBtn');
+
+      playSound('pop');
+
+      if (type === 'large') {
+        btnLarge.className = 'doodle-btn px-2 py-0.5 text-[9px] font-black bg-emerald-100 text-emerald-950 border border-slate-800';
+        btnSmall.className = 'doodle-btn px-2 py-0.5 text-[9px] font-bold bg-white text-slate-600 border border-slate-300';
+      } else {
+        btnSmall.className = 'doodle-btn px-2 py-0.5 text-[9px] font-black bg-amber-200 text-amber-950 border border-slate-800';
+        btnLarge.className = 'doodle-btn px-2 py-0.5 text-[9px] font-bold bg-white text-slate-600 border border-slate-300';
+      }
+      calculate();
+    }
+
+    function selectBankPreset(clickedBtn) {
+      playSound('pop');
+      setUsdCostPreset(liveBotCashSellRate, clickedBtn);
+      showToast(`已套用台銀現鈔牌告：1 USD = ${liveBotCashSellRate.toFixed(2)} 元`);
+    }
+
+    function setUsdCostPreset(rate, clickedBtn) {
+      playSound('pop');
+      usdCostInput.value = rate.toFixed(2);
+      costSummaryBadge.textContent = rate.toFixed(2);
+      document.querySelectorAll('.cost-preset-btn').forEach(btn => {
+        btn.className = 'cost-preset-btn doodle-btn p-1 text-slate-700 bg-white hover:bg-amber-100 text-[10px]';
+      });
+      if (clickedBtn) {
+        clickedBtn.className = 'cost-preset-btn doodle-btn p-1 bg-amber-200 text-amber-950 border border-slate-800 text-[10px]';
+      }
+      calculate();
+    }
+
+    function adjustUsdCost(delta) {
+      playSound('pop');
+      let current = parseFloat(usdCostInput.value) || 31.8;
+      current = Math.round((current + delta) * 100) / 100;
+      if (current < 25) current = 25;
+      if (current > 42) current = 42;
+      usdCostInput.value = current.toFixed(2);
+      costSummaryBadge.textContent = current.toFixed(2);
+
+      document.querySelectorAll('.cost-preset-btn').forEach(btn => {
+        btn.className = 'cost-preset-btn doodle-btn p-1 text-slate-700 bg-white hover:bg-amber-100 text-[10px]';
+      });
+      calculate();
+    }
+
+    async function fetchBotLiveRate() {
+      const syncDot = document.getElementById('botSyncDot');
+      const subtitle = document.getElementById('bankRateSubtitle');
+      const badge = document.getElementById('botSourceBadge');
+
+      if (syncDot) syncDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 inline-block animate-ping';
+      if (subtitle) subtitle.textContent = '抓取中...';
+
+      const botCsvUrl = 'https://rate.bot.com.tw/xrt/flcsv/0/day';
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(botCsvUrl)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(botCsvUrl)}`
+      ];
+
+      let fetchedRate = null;
+
+      for (const proxyUrl of proxies) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 4000);
+          const res = await fetch(proxyUrl, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            const csvText = await res.text();
+            if (csvText && csvText.includes('USD')) {
+              const lines = csvText.split('\n');
+              for (const line of lines) {
+                const cols = line.split(',');
+                if (cols[0] && cols[0].trim() === 'USD') {
+                  const rateVal = parseFloat(cols[12]);
+                  if (!isNaN(rateVal) && rateVal > 25 && rateVal < 45) {
+                    fetchedRate = Math.round(rateVal * 100) / 100;
+                    liveRateSource = '臺灣銀行牌告現鈔賣出';
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          if (fetchedRate) break;
+        } catch (e) {}
+      }
+
+      if (!fetchedRate) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const res = await fetch('https://open.er-api.com/v6/latest/USD', { signal: controller.signal });
+          clearTimeout(timeoutId);
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.rates?.TWD) {
+              fetchedRate = Math.round((data.rates.TWD + 0.25) * 100) / 100;
+              liveRateSource = '國際即時匯率換算';
+              updateAllCountriesFromLiveRates(data.rates);
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (fetchedRate) {
+        liveBotCashSellRate = fetchedRate;
+        try {
+          localStorage.setItem('cached_bot_rate', String(fetchedRate));
+        } catch (e) {}
+
+        if (syncDot) syncDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block';
+        if (subtitle) subtitle.textContent = `現鈔約 ${liveBotCashSellRate.toFixed(2)}`;
+        if (badge) badge.textContent = `🟢 已連線台銀：${liveBotCashSellRate.toFixed(2)}`;
+      } else {
+        const cached = localStorage.getItem('cached_bot_rate');
+        if (cached && !isNaN(parseFloat(cached))) {
+          liveBotCashSellRate = parseFloat(cached);
+          liveRateSource = '上次暫存';
+        } else {
+          liveBotCashSellRate = 32.80;
+          liveRateSource = '離線預估值';
+        }
+        if (syncDot) syncDot.className = 'w-1.5 h-1.5 rounded-full bg-slate-400 inline-block';
+        if (subtitle) subtitle.textContent = `約 ${liveBotCashSellRate.toFixed(2)}`;
+        if (badge) badge.textContent = `📡 離線模式 (${liveRateSource})`;
+      }
+    }
+
+    function updateAllCountriesFromLiveRates(rates) {
+      if (!rates || !rates.TWD) return;
+      const twd = rates.TWD;
+
+      COUNTRIES.forEach(c => {
+        const foreign = rates[c.currency];
+        if (foreign) {
+          const usdKiosk = foreign * 0.995;
+          const twdKiosk = (foreign / twd) * 0.985;
+
+          if (['KRW', 'VND', 'IDR'].includes(c.currency)) {
+            c.sampleUsd = String(Math.round(usdKiosk));
+            c.sampleTwd = String(Math.round(twdKiosk * 10) / 10);
+          } else if (['JPY', 'THB', 'PHP'].includes(c.currency)) {
+            c.sampleUsd = String(Math.round(usdKiosk * 10) / 10);
+            c.sampleTwd = String(Math.round(twdKiosk * 100) / 100);
+          } else if (['MYR', 'SGD'].includes(c.currency)) {
+            c.sampleUsd = String(Math.round(usdKiosk * 100) / 100);
+            c.sampleTwd = String(Math.round(twdKiosk * 1000) / 1000);
+          }
+        }
+      });
+    }
+
+    function renderCountryButtons() {
+      const container = document.getElementById('countryScrollRow');
+      container.innerHTML = '';
+
+      COUNTRIES.forEach((c) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const isSelected = c.name === currentCountry.name;
+        btn.className = `doodle-btn px-2.5 py-1 flex items-center gap-1.5 shrink-0 transition-all ${
+          isSelected 
+            ? 'bg-amber-200 text-amber-950 font-black border-2 border-slate-900 shadow-none' 
+            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold border border-slate-300'
+        }`;
+        btn.innerHTML = `
+          <span class="text-sm leading-none">${c.flag}</span>
+          <span class="text-xs whitespace-nowrap">${c.name}</span>
+        `;
+        btn.onclick = () => selectCountry(c);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectCountry(c) {
+      playSound('pop');
+      currentCountry = c;
+      document.querySelectorAll('.current-currency-name').forEach(el => {
+        el.textContent = c.unitName;
+      });
+
+      usdRateInput.value = c.sampleUsd;
+      twdRateInput.value = c.sampleTwd;
+      usdRateInput.placeholder = `如 ${c.sampleUsd}`;
+      twdRateInput.placeholder = `如 ${c.sampleTwd}`;
+
+      renderCountryButtons();
+      showToast(`已切換為【${c.name}】行情！`);
+      calculate();
+    }
+
+    function resetToSampleRates() {
+      playSound('pop');
+      usdRateInput.value = currentCountry.sampleUsd;
+      twdRateInput.value = currentCountry.sampleTwd;
+      showToast(`已填入【${currentCountry.name}】平均行情！`);
+      calculate();
+    }
+
+    function clearKioskInputs() {
+      playSound('pop');
+      usdRateInput.value = '';
+      twdRateInput.value = '';
+      usdRateInput.focus();
+      showToast('已清空數字！請照現場看板輸入～');
+      calculate();
+    }
+
+    function setQuickBudget(amount) {
+      playSound('pop');
+      budgetInput.value = amount;
+      document.querySelectorAll('.budget-chip').forEach(btn => {
+        if (btn.innerText.includes(amount >= 10000 ? `${amount/10000}萬` : `${amount/1000}千`)) {
+          btn.className = 'budget-chip doodle-btn px-1.5 py-0.2 text-[9px] bg-amber-200 text-amber-950 font-black';
+        } else {
+          btn.className = 'budget-chip doodle-btn px-1.5 py-0.2 text-[9px] bg-white text-slate-700';
+        }
+      });
+      calculate();
+    }
+
+    function calculate() {
+      let rawUsdRate = parseFloat(usdRateInput.value);
+      const twdRate = parseFloat(twdRateInput.value);
+      const usdCost = parseFloat(usdCostInput.value) || 31.8;
+      const budgetTwd = parseFloat(budgetInput.value) || 0;
+
+      costSummaryBadge.textContent = usdCost.toFixed(2);
+
+      // 小鈔折讓約 2%
+      const effectiveUsdRate = currentDenomination === 'small' ? rawUsdRate * 0.98 : rawUsdRate;
+
+      // 損益平衡點
+      if (effectiveUsdRate && effectiveUsdRate > 0 && usdCost > 0) {
+        const breakEvenRate = effectiveUsdRate / usdCost;
+        if (['KRW', 'VND', 'IDR'].includes(currentCountry.currency)) {
+          breakEvenTargetRate.textContent = breakEvenRate.toFixed(1);
+        } else if (['JPY', 'THB', 'PHP'].includes(currentCountry.currency)) {
+          breakEvenTargetRate.textContent = breakEvenRate.toFixed(2);
+        } else {
+          breakEvenTargetRate.textContent = breakEvenRate.toFixed(3);
+        }
+      } else {
+        breakEvenTargetRate.textContent = '--';
+      }
+
+      // 未輸入完全時的導引狀態
+      if (!rawUsdRate || !twdRate || rawUsdRate <= 0 || twdRate <= 0) {
+        verdictStamp.className = 'stamp-mark text-xs font-bold text-slate-600 border-slate-400 bg-slate-100';
+        verdictStamp.textContent = '✏️ 等待輸入看板數字...';
+        rewardIcon.textContent = '🗺️';
+        rewardText.textContent = '在上方填寫數字，一秒出結論！';
+        diffMoneyText.textContent = '現場免按計算機～';
+        usdFinalVal.textContent = '--';
+        twdFinalVal.textContent = '--';
+        impliedRateText.textContent = '--';
+        return;
+      }
+
+      // 1. 隱含匯率
+      const impliedRate = effectiveUsdRate / twdRate;
+      impliedRateText.textContent = impliedRate.toFixed(2);
+
+      // 2. 兩種換匯結果
+      const totalByTwd = budgetTwd * twdRate;
+      const usdEquivalent = budgetTwd / usdCost;
+      const totalByUsd = usdEquivalent * effectiveUsdRate;
+
+      const fmt = (num) => Math.round(num).toLocaleString();
+
+      usdFinalVal.textContent = `${fmt(totalByUsd)} ${currentCountry.unitName}`;
+      twdFinalVal.textContent = `${fmt(totalByTwd)} ${currentCountry.unitName}`;
+      usdSubDetail.textContent = `拿約 $${usdEquivalent.toFixed(0)} 美元${currentDenomination === 'small' ? ' (小鈔折讓)' : ''}`;
+      twdSubDetail.textContent = `以 NT$ ${budgetTwd.toLocaleString()} 直換`;
+
+      const diffLocal = Math.abs(totalByUsd - totalByTwd);
+      const diffTwd = Math.round(diffLocal / twdRate);
+      const foodCount = Math.max(1, Math.round(diffLocal / currentCountry.foodPrice));
+
+      // 3. 海外刷卡比對
+      const cardBonusTwd = Math.round(budgetTwd * 0.015);
+      if (diffTwd > cardBonusTwd * 1.5) {
+        cardCompareText.textContent = `海外刷卡淨賺約 NT$ ${cardBonusTwd}，但現金換匯多賺 NT$ ${diffTwd}，現金勝！`;
+      } else {
+        cardCompareText.textContent = `差額不大，若不想帶大筆現金，刷 3% 海外神卡也很划算。`;
+      }
+
+      const percentageDiff = (diffLocal / Math.max(totalByUsd, totalByTwd)) * 100;
+
+      if (percentageDiff < 0.4) {
+        verdictStamp.className = 'stamp-mark text-sm font-black text-slate-700 border-slate-500 bg-slate-100';
+        verdictStamp.textContent = '⚖️ 兩者差不多！';
+        rewardIcon.textContent = '👌';
+        rewardText.textContent = `只相差約 NT$ ${diffTwd} 元，錢包有什麼就換什麼！`;
+        diffMoneyText.textContent = '不需特地糾結，輕鬆玩最重要～';
+
+        boxUsd.className = 'p-1.5 rounded-lg border border-slate-300 bg-slate-50';
+        boxTwd.className = 'p-1.5 rounded-lg border border-slate-300 bg-slate-50';
+        usdWinTag.classList.add('hidden');
+        twdWinTag.classList.add('hidden');
+      } 
+      else if (totalByUsd > totalByTwd) {
+        verdictStamp.className = 'stamp-mark stamp-win text-base sm:text-lg';
+        verdictStamp.textContent = '🎉 請掏【美金】換！';
+        rewardIcon.textContent = currentCountry.foodIcon;
+        rewardText.textContent = `多拿的錢，相當於免費多吃 ${foodCount} ${currentCountry.foodName}！`;
+        diffMoneyText.textContent = `現賺約 ${fmt(diffLocal)} ${currentCountry.unitName}（約 NT$ ${diffTwd.toLocaleString()} 元）`;
+
+        boxUsd.className = 'p-1.5 rounded-lg border-2 border-emerald-500 bg-emerald-50/80 shadow-xs';
+        boxTwd.className = 'p-1.5 rounded-lg border border-slate-300 bg-slate-50 opacity-70';
+        usdWinTag.classList.remove('hidden');
+        twdWinTag.classList.add('hidden');
+        playSound('stamp');
+      } 
+      else {
+        verdictStamp.className = 'stamp-mark stamp-twd text-base sm:text-lg';
+        verdictStamp.textContent = '🇹🇼 請掏【台幣】直換！';
+        rewardIcon.textContent = currentCountry.foodIcon;
+        rewardText.textContent = `直接拿台幣換，相當於免費多賺 ${foodCount} ${currentCountry.foodName}！`;
+        diffMoneyText.textContent = `現賺約 ${fmt(diffLocal)} ${currentCountry.unitName}（約 NT$ ${diffTwd.toLocaleString()} 元）`;
+
+        boxTwd.className = 'p-1.5 rounded-lg border-2 border-blue-500 bg-blue-50/80 shadow-xs';
+        boxUsd.className = 'p-1.5 rounded-lg border border-slate-300 bg-slate-50 opacity-70';
+        twdWinTag.classList.remove('hidden');
+        usdWinTag.classList.add('hidden');
+        playSound('stamp');
+      }
+    }
+
+    function copyReport() {
+      playSound('pop');
+      const usdRate = usdRateInput.value || '--';
+      const twdRate = twdRateInput.value || '--';
+      const usdCost = usdCostInput.value || '31.8';
+      const verdict = verdictStamp.textContent.trim();
+      const reward = rewardText.textContent.trim();
+      const budget = budgetInput.value;
+      const denomNote = currentDenomination === 'small' ? '（10-20 小鈔折讓試算）' : '（50-100 大鈔）';
+      const todayStr = getFormattedDate();
+
+      const report = `【✈️ 換錢所即時算好囉！】\n` +
+                     `📅 記錄日期：${todayStr} (v1.0)\n` +
+                     `📍 地點：${currentCountry.name} (${currentCountry.currency})\n` +
+                     `• 看板美金 We Buy：${usdRate} ${denomNote}\n` +
+                     `• 看板台幣 We Buy：${twdRate}\n` +
+                     `• 美金入手成本：1 USD = NT$ ${usdCost}\n` +
+                     `• 試算預算：NT$ ${Number(budget).toLocaleString()}\n` +
+                     `-----------------------\n` +
+                     `👉 結論：${verdict}\n` +
+                     `💡 ${reward}\n` +
+                     `💵 拿美金換得：${usdFinalVal.textContent}\n` +
+                     `🇹🇼 拿台幣換得：${twdFinalVal.textContent}\n` +
+                     `🎯 現場平衡界線：看板台幣 > ${breakEvenTargetRate.textContent} 掏台幣，否則掏美金！`;
+
+      const tempArea = document.createElement('textarea');
+      tempArea.value = report;
+      tempArea.style.position = 'fixed';
+      tempArea.style.left = '-9999px';
+      document.body.appendChild(tempArea);
+      tempArea.select();
+
+      try {
+        document.execCommand('copy');
+        showToast('📋 報告已複製！快貼到 LINE 給旅伴～');
+      } catch (e) {
+        showToast('❌ 請手動截圖分享');
+      } finally {
+        document.body.removeChild(tempArea);
+      }
+    }
+
+    function getFormattedDate() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const weekDays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+      return `${y}.${m}.${d} (${weekDays[now.getDay()]})`;
+    }
+
+    function initDates() {
+      const formatted = getFormattedDate();
+      const headerDateEl = document.getElementById('headerTodayDate');
+      const footerDateEl = document.getElementById('footerTodayDate');
+      if (headerDateEl) headerDateEl.textContent = formatted;
+      if (footerDateEl) footerDateEl.textContent = formatted;
+    }
+
+    function showVersionInfo() {
+      playSound('pop');
+      showToast('📖 手帳版本 v1.0：一屏秒算 · 離線無網可用！');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-2');
+      }, 2000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initDates();
+      renderCountryButtons();
+      selectCountry(COUNTRIES[0]);
+      calculate();
+
+      [usdRateInput, twdRateInput, usdCostInput, budgetInput].forEach(el => {
+        el.addEventListener('input', calculate);
+      });
+
+      fetchBotLiveRate();
+    });
+  </script>
+</body>
+</html>
